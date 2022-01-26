@@ -1,7 +1,7 @@
 # A Probabilistic Generative Model for Learning the Progression Patterns of Treatments
 
 [![Made-with-R](https://img.shields.io/badge/Made%20with-R-blue)](/AMRC_Python) [![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)](#support-and-author)
-
+ 
 This repository is the official implementation of .........
 
 The proposed AMRCs account for multivariate and higher order time changes, provide performance guarantees at specific time instants, and efficiently update classification rules. 
@@ -14,7 +14,7 @@ AMRCs provide instantaneous bounds for probabilities of error and bounds for acc
 
 AMRC folder contains the Python and Matlab foldes that includes the Python and Matlab scripts, respectively, required to run the code.
 
-### Python code
+### R code
 
 [AMRC_ Python](/AMRC_Python)  folder contains Python scripts required to execute the method:
 
@@ -27,7 +27,7 @@ AMRC folder contains the Python and Matlab foldes that includes the Python and M
 
 
 #### Requirements
-
+aqui escribir los pauqetes y versiones que necesito
 The requirements are detailed in the requeriments.txt file. Run the following command to install the requeriments:
 
 ```setup
