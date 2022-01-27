@@ -38,7 +38,7 @@ for (seed in seeds){
   original_theta.c <- read.csv(paste0(data.directory,"/real_probability_classes.csv"), header = T, sep = "," )
 
   test <- Test_Generator(seed, N.total=4000, original_theta.c, original_MarkovModel, original_initialization) # 4000 sequences for test dataset
-  ll_real_test <- ll_a(test, num.classes, max.stages, original_theta.c, original_MarkovModel, original_initialization, min.stages) # evaluate the test dataset in the original model
+  ll_real_test <- likelihood.a(test, num.classes, max.stages, original_theta.c, original_MarkovModel, original_initialization, min.stages) # evaluate the test dataset in the original model
   
 
   for (n in N){
@@ -58,11 +58,11 @@ for (seed in seeds){
     learned_theta.c <- t(read.csv(paste0(data.directory,"/probability_classes.csv"), header = T, sep = "," ))
     
     
-    ll_train_train <- ll_a(train, num.classes, max.stages, learned_theta.c, 
+    ll_train_train <- likelihood.a(train, num.classes, max.stages, learned_theta.c, 
                            learned_MarkovModel, learned_initialization, min.stages) # train dataset on the learned model
-    ll_real_train <- ll_a(train, num.classes, max.stages, original_theta.c, 
+    ll_real_train <- likelihood.a(train, num.classes, max.stages, original_theta.c, 
                           original_MarkovModel, original_initialization, min.stages) # train dataset on the original model
-    ll_train_test <- ll_a(test, num.classes, max.stages, learned_theta.c, 
+    ll_train_test <- likelihood.a(test, num.classes, max.stages, learned_theta.c, 
                           learned_MarkovModel, learned_initialization, min.stages) # test dataset on the learned model
     
     
