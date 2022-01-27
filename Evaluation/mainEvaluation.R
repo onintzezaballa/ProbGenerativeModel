@@ -1,5 +1,6 @@
 
 library(MCMCpack)
+library(ggplot2)
 source("github/Evaluation/evaluation_functions.R")
 
 N <- c(300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000)
@@ -24,13 +25,9 @@ A_S <- paste0(rep(actions,times=max.stages),rep(1:max.stages, each = length(acti
 A_S <- c(A_S,paste0("END",max.stages))
 
 for (seed in seeds){
-  print(paste0("SEED: ", seed))
   n<- N[1]
-  data.directory <- paste0("HIPATIA/Model 3 dynamic programming synthetic data/results/",n,"_",num.classes,
+  data.directory <- paste0("data/",n,"_",num.classes,
                            "classes_",max.stages,"stages_",min.stages,"minstages_",seed)   # Import the original model
-  
-  #data.directory <- paste0("data/",n,"_",num.classes,
-  #                         "classes_",max.stages,"stages_",min.stages,"minstages_",seed)   # Import the original model
   
   original_MarkovModel <- list()
   original_initialization <- list()
@@ -68,13 +65,8 @@ for (seed in seeds){
   test <- Test_Generator(seed, N.total =4, original_theta.c, original_MarkovModel, original_initialization) # 4000 sequences for test dataset
   ll_real_test <- ll_a(test, num.classes, max.stages, original_theta.c, original_MarkovModel, original_initialization, min.stages) # evaluate the test dataset in the original model
   
-  n <- N[1]
   for (n in N){
-    data.directory <- paste0("HIPATIA/Model 3 dynamic programming synthetic data/results/",n,"_",num.classes,
-                             "classes_",max.stages,"stages_",min.stages,"minstages_",seed)   # Import the original model
-    # data.directory <- paste0("data/",n,"_",num.classes,
-    #                           "classes_",max.stages,"stages_",min.stages,"minstages_",seed) 
-
+    data.directory <- paste0("data/",n,"_",num.classes,"classes_",max.stages,"stages_",min.stages,"minstages_",seed) 
     train <- read.csv(paste0(data.directory,"/data.csv")) # train data 
     MarkovModel <- list()
     initialization <- list()
@@ -114,9 +106,12 @@ for (seed in seeds){
     learned_initialization <- initialization
     learned_theta.c <- theta_c
     
-    ll_train_train <- ll_a(train, num.classes, max.stages, learned_theta.c, learned_MarkovModel, learned_initialization, min.stages) # train dataset on the learned model
-    ll_real_train <- ll_a(train, num.classes, max.stages, original_theta.c, original_MarkovModel, original_initialization, min.stages) # train dataset on the original model
-    ll_train_test <- ll_a(test, num.classes, max.stages, learned_theta.c, learned_MarkovModel, learned_initialization, min.stages) # test dataset on the learned model
+    ll_train_train <- ll_a(train, num.classes, max.stages, learned_theta.c, learned_MarkovModel, 
+                           learned_initialization, min.stages) # train dataset on the learned model
+    ll_real_train <- ll_a(train, num.classes, max.stages, original_theta.c, original_MarkovModel, 
+                          original_initialization, min.stages) # train dataset on the original model
+    ll_train_test <- ll_a(test, num.classes, max.stages, learned_theta.c, learned_MarkovModel, 
+                          learned_initialization, min.stages) # test dataset on the learned model
     
     
     data_n <- data.frame('Seed'=seed,
@@ -129,11 +124,9 @@ for (seed in seeds){
                          'll_real_train'= as.numeric(ll_real_train),
                          'll_real_test'= as.numeric(ll_real_test)
     )
-    
     data <- rbind(data,data_n)
-
   }
-} #seed
+} 
 
 data <- data[-1,]
 data.mean <- data.frame('N.Sec'= unique(data$N.Sec),
@@ -162,9 +155,6 @@ data1$Value[1:nrow(data.mean)] <- data.mean$ll_train_train
 data1$Value[(nrow(data.mean)+1): (2*nrow(data.mean))] <- data.mean$ll_train_test
 data1$Value[(2*nrow(data.mean)+1): (3*nrow(data.mean))] <- data.mean$ll_real_train
 data1$Value[(3*nrow(data.mean)+1): (4*nrow(data.mean))] <- data.mean$ll_real_test
-
-
-library(ggplot2)
 
 data1$int <- paste(data1$Data, data1$Model, sep=".")
 (plot <-ggplot(data1, aes(x=Number.Sec, y=Value, colour = int, linetype=int, shape = int, size = int)) + theme_bw()+
