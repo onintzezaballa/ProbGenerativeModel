@@ -2,12 +2,12 @@
 library(MCMCpack)
 source("github/Evaluation/evaluation_functions.R")
 
-N <- c(300, 400)#, 500, 600, 700, 800, 900, 1000, 2000, 3000)
+N <- c(300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000)
 num.classes <- 3
 max.stages <-4
 min.stages <-3
 actions <- c( "A", "B", "C", "D", "E", "G", "H", "I", "J", "K")
-seeds <- c(2,5) #,8,10,12)
+seeds <- c(2,5,8,10,12)
 
 
 data <- data.frame('Seed'= 0,
