@@ -1,5 +1,5 @@
 
-log_likelihood <- function(num.classes, num.stages, prob.c, mass.prob.likelihood, min.stages = num.stages){
+log_likelihood <- function(num.classes, max.stages, prob.c, mass.prob.likelihood, min.stages = max.stages){
   # This function calculates the loglikelihood of the model
   
   minvalueR <- 1e-323
@@ -35,20 +35,20 @@ log_likelihood <- function(num.classes, num.stages, prob.c, mass.prob.likelihood
     likelihood.samp <- 0
     
     for (ci in 1:num.classes){
-      ll.env$f.matrix <- matrix(rep(-1,num.stages*length(X)), ncol = length(X))
+      ll.env$f.matrix <- matrix(rep(-1,max.stages*length(X)), ncol = length(X))
       ll.env$f11 <- initialization[[ci]]$PROB[which(initialization[[ci]]$X==paste0(X[1],1))]
-      ll.env$f.matrix[,1] <- c(ll.env$f11, rep(0,num.stages -1))
+      ll.env$f.matrix[,1] <- c(ll.env$f11, rep(0,max.stages -1))
       colnames(ll.env$f.matrix) <- X
-      rownames(ll.env$f.matrix) <- 1:num.stages
-      for (si in num.stages:min.stages){
+      rownames(ll.env$f.matrix) <- 1:max.stages
+      for (si in max.stages:min.stages){
         ll.env$f.prob <- f_likelihood(s = si, t = length(X)) 
       }
       ll.env$f.matrix[ll.env$f.matrix==-1] <- 0   
       ll.env$F.matrix[[ci]] <- ll.env$f.matrix
     }
     t <- length(X)
-    s <- min.stages:num.stages
-    s.prim <- min.stages:num.stages
+    s <- min.stages:max.stages
+    s.prim <- min.stages:max.stages
     mass.prob <- list()
     for (ci in 1:num.classes){
       pp <- MarkovModel[[ci]][[1]][paste0(X[t-1],s),X[t]]*MarkovModel[[ci]][[2]][paste0(X[t],s), s.prim]

@@ -1,5 +1,5 @@
 
-adjust_normalization_epsilon <- function(MarkovModel, value1, value2,  actions, num.stages, ci, min.stages = num.stages){
+adjust_normalization_epsilon <- function(MarkovModel, value1, value2,  actions, max.stages, ci, min.stages = max.stages){
   # This function adjust the MarkovModel in order to have a minimum value in each transition
   # INPUT
   # - value1: the minimum probability for the transitions p(a_t|a_{t-1}, s_{t-1},c)
@@ -9,13 +9,13 @@ adjust_normalization_epsilon <- function(MarkovModel, value1, value2,  actions, 
   # - MarkovModel
   
   L <- length(actions)
-  for (si in 1:num.stages){
+  for (si in 1:max.stages){
     if (si == 1){
       row.pos1 <- L
       row.pos2 <- L
       MarkovModel[[ci]][[1]][ 1:row.pos1, 1:L] <- MarkovModel[[ci]][[1]][ 1:row.pos1, 1:L]*(1-(value1*L))
       MarkovModel[[ci]][[2]][ 1:row.pos2, si:(si+1)] <- MarkovModel[[ci]][[2]][ 1:row.pos2, si:(si+1)]*(1-(2*value2))
-    } else if (si==num.stages){
+    } else if (si==max.stages){
       MarkovModel[[ci]][[1]][(row.pos1+1):(row.pos1+L), 1:(L+1)] <- MarkovModel[[ci]][[1]][(row.pos1+1):(row.pos1+L) ,1:(L+1)]*(1-(value1*(L+1)))
       MarkovModel[[ci]][[2]][ (row.pos2+1): (row.pos2+L+1), si] <- MarkovModel[[ci]][[2]][(row.pos2+1): (row.pos2+L+1), si]*(1-(value2))
       # este ult se podria eliminar
@@ -34,7 +34,7 @@ adjust_normalization_epsilon <- function(MarkovModel, value1, value2,  actions, 
   return(MarkovModel)
 }
 
-addEpsilon <- function(value1, value2, actions, num.stages, min.stages = num.stages){
+addEpsilon <- function(value1, value2, actions, max.stages, min.stages = max.stages){
   # This function creates a matrix with epsilon values 
   
   # INPUT
@@ -43,14 +43,14 @@ addEpsilon <- function(value1, value2, actions, num.stages, min.stages = num.sta
   
   # OUTPUT
   # - epsilon.matrix: a matrix with epsilon values
-  names <- paste0(rep(actions,times=num.stages),rep(1:num.stages, each = length(actions))) 
+  names <- paste0(rep(actions,times=max.stages),rep(1:max.stages, each = length(actions))) 
   epsilon.matrix <- list()
   epsilon.matrix[[1]] <- matrix(rep(0,(length(names)*(length(actions)+1))), ncol = length(actions)+1)
   colnames(epsilon.matrix[[1]]) <- c(actions,"END")
   rownames(epsilon.matrix[[1]]) <- names
   L <- length(actions)
   si<-1
-  for (si in 1:num.stages){
+  for (si in 1:max.stages){
     if (si == 1){
       row.pos <- L
       epsilon.matrix[[1]][ 1: (si*L), 1:L] <- matrix(rep(rep(value1, L),L),nrow=L, byrow=T)
@@ -64,19 +64,19 @@ addEpsilon <- function(value1, value2, actions, num.stages, min.stages = num.sta
   }
   
   names.without.end<- paste0(rep(actions,times=min.stages-1),rep(1:(min.stages-1), each = length(actions))) #(xt,st-1)
-  names.with.end <- paste0(rep(c(actions,"END"),times=length(min.stages:num.stages)),rep(min.stages:num.stages, each = length(actions)+1)) 
+  names.with.end <- paste0(rep(c(actions,"END"),times=length(min.stages:max.stages)),rep(min.stages:max.stages, each = length(actions)+1)) 
   names2 <- c(names.without.end,names.with.end)
   
   
-  epsilon.matrix[[2]] <- matrix(rep(0,(length(names2)*(num.stages))), ncol = num.stages)
+  epsilon.matrix[[2]] <- matrix(rep(0,(length(names2)*(max.stages))), ncol = max.stages)
   rownames(epsilon.matrix[[2]]) <- names2
-  colnames(epsilon.matrix[[2]]) <- 1:num.stages
+  colnames(epsilon.matrix[[2]]) <- 1:max.stages
   L <- length(actions)
-  for (si in 1:num.stages){
+  for (si in 1:max.stages){
     if (si == 1){
       row.pos <- L
       epsilon.matrix[[2]][ 1:L, si:(si+1)] <- matrix(rep(rep(value2, 2),L),nrow=L, byrow=T)
-    } else if (si==num.stages){
+    } else if (si==max.stages){
       epsilon.matrix[[2]][ (row.pos + 1): (row.pos + L +1), si] <- matrix(rep(value2, L+1),ncol=L+1, byrow=T)
     } else if (si>=min.stages){
       epsilon.matrix[[2]][ (row.pos + 1): (row.pos + L+1), si:(si+1)] <-matrix(rep(rep(value2, 2),L+1),nrow=L+1, byrow=T)
@@ -100,8 +100,8 @@ NormalizationAndSmoothing <- function(MarkovModel, initialization, epsilon=1e-2)
     MarkovModel[[ci]][[2]] <- MarkovModel[[ci]][[2]]/rowSums(MarkovModel[[ci]][[2]])
     MarkovModel[[ci]][[1]][(is.na(MarkovModel[[ci]][[1]]))] <- 0
     MarkovModel[[ci]][[2]][(is.na(MarkovModel[[ci]][[2]]))] <- 0
-    MarkovModel <- adjust_normalization_epsilon(MarkovModel, value1 = epsilon, value2=epsilon,  actions, num.stages, ci, min.stages) # minimo prob de epsilon
-    epsilon.matrix <-  addEpsilon(value1 = epsilon, value2 = epsilon,  actions, num.stages, min.stages)
+    MarkovModel <- adjust_normalization_epsilon(MarkovModel, value1 = epsilon, value2=epsilon,  actions, max.stages, ci, min.stages) # minimo prob de epsilon
+    epsilon.matrix <-  addEpsilon(value1 = epsilon, value2 = epsilon,  actions, max.stages, min.stages)
     MarkovModel[[ci]][[1]] <- MarkovModel[[ci]][[1]] +  epsilon.matrix[[1]]
     MarkovModel[[ci]][[2]] <- MarkovModel[[ci]][[2]] +  epsilon.matrix[[2]]
     # Para los que son completamente 0

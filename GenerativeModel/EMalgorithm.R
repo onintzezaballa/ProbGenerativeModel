@@ -17,8 +17,8 @@ EM <- function( maxIter=1000,likelihoodEps = 1e-3, saveResults = TRUE){
   
   while (stop == FALSE){
     print(iter)
-    new.MarkovModel <- empty_MarkovModel(num.classes, num.stages, actions, min.stages) 
-    new.initialization <- empty_initialModel(num.classes, num.stages, actions)
+    new.MarkovModel <- empty_MarkovModel(num.classes, max.stages, actions, min.stages) 
+    new.initialization <- empty_initialModel(num.classes, max.stages, actions)
     new.theta_c <- c(rep(0,num.classes))
     mass.prob.likelihood <- list()
     for (i in 1:nrow(df)){
@@ -37,7 +37,7 @@ EM <- function( maxIter=1000,likelihoodEps = 1e-3, saveResults = TRUE){
     MarkovModel <- normalizedModels[[1]]
     initialization <- normalizedModels[[2]]
     
-    LL<- c(LL,log_likelihood(num.classes, num.stages, theta_c, mass.prob.likelihood, min.stages))
+    LL<- c(LL,log_likelihood(num.classes, max.stages, theta_c, mass.prob.likelihood, min.stages))
     if (length(LL)>1){
       if (abs(LL[iter+1]-LL[iter]) < likelihoodEps | iter == maxIter) {stop <- TRUE}
     }
@@ -47,7 +47,7 @@ EM <- function( maxIter=1000,likelihoodEps = 1e-3, saveResults = TRUE){
   dataexport <- data.frame('Experiment' = seed,
                            'Numero Sec'= n,
                            'Numero clases'=num.classes,
-                           'Numero stages'=num.stages,
+                           'Numero stages'=max.stages,
                            'Minimum stage' = min.stages,
                            'Likelihood'=LL[length(LL)])
   print(dataexport)
@@ -112,14 +112,14 @@ g <- function(s,t){
   if (g.matrix[s,t]!=-1  ){
     return(g.matrix[s,t])
     
-  } else if (s==num.stages) { 
+  } else if (s==max.stages) { 
     aux2 <- g(s,t+1)*MarkovModel[[ci]][[1]][paste0(A[t],s),A[t+1]]*MarkovModel[[ci]][[2]][paste0(A[t+1],s),s]
     if (is.na(aux2)| aux2==-Inf | aux2==Inf) {aux2 <- 0}
     g.matrix[s,t] <<- aux2
     return(g.matrix[s,t])
     
     
-  } else if (t==length(A)-(num.stages-min.stages) & s < min.stages ) {
+  } else if (t==length(A)-(max.stages-min.stages) & s < min.stages ) {
     aux1 <- 0
     g.matrix[s,t] <<- aux1
     return(g.matrix[s,t])
@@ -130,7 +130,7 @@ g <- function(s,t){
     g.matrix[s,t] <<- aux1
     return(g.matrix[s,t])
     
-  } else if (t < length(A) & s < num.stages){
+  } else if (t < length(A) & s < max.stages){
     aux1 <- g(s+1,t+1)*MarkovModel[[ci]][[1]][paste0(A[t],s),A[t+1]]*MarkovModel[[ci]][[2]][paste0(A[t+1],s),s+1]
     aux2 <- g(s,t+1)*MarkovModel[[ci]][[1]][paste0(A[t],s),A[t+1]]*MarkovModel[[ci]][[2]][paste0(A[t+1],s),s]
     if (is.na(aux1)| aux1==-Inf | aux1==Inf) {aux1 <- 0}
@@ -156,25 +156,25 @@ Estep <- function(A, initialization, MarkovModel){
   F.matrix <- list() 
   G.matrix <- list() 
   for (ci in 1:num.classes){
-    f.matrix <- matrix(rep(-1,num.stages*length(A)), ncol = length(A))
+    f.matrix <- matrix(rep(-1,max.stages*length(A)), ncol = length(A))
     f11 <- initialization[[ci]]$PROB[which(initialization[[ci]][,1]==paste0(A[1],1))]
-    f.matrix[,1] <- c(f11,rep(0,num.stages -1))
+    f.matrix[,1] <- c(f11,rep(0,max.stages -1))
     colnames(f.matrix) <- A
-    rownames(f.matrix) <- 1:num.stages
+    rownames(f.matrix) <- 1:max.stages
 
-    g.matrix <- matrix(rep(-1,num.stages*(length(A))), ncol = length(A))
-    gnn <- MarkovModel[[ci]][[1]][paste0(A[length(A)-1],min.stages:num.stages),"END"]
-    if (num.stages!=min.stages){
-      g.matrix[,ncol(g.matrix)] <- c(rep(0,num.stages-length(gnn)),gnn)
-      g.matrix[1:(min.stages-1),length(A)-(num.stages-min.stages)] <- 0
+    g.matrix <- matrix(rep(-1,max.stages*(length(A))), ncol = length(A))
+    gnn <- MarkovModel[[ci]][[1]][paste0(A[length(A)-1],min.stages:max.stages),"END"]
+    if (max.stages!=min.stages){
+      g.matrix[,ncol(g.matrix)] <- c(rep(0,max.stages-length(gnn)),gnn)
+      g.matrix[1:(min.stages-1),length(A)-(max.stages-min.stages)] <- 0
     } else {
-      g.matrix[,ncol(g.matrix)] <- c(rep(0,num.stages-1),gnn)
-      g.matrix[1:(num.stages-1),length(A)-1] <- 0
+      g.matrix[,ncol(g.matrix)] <- c(rep(0,max.stages-1),gnn)
+      g.matrix[1:(max.stages-1),length(A)-1] <- 0
     }
     
     colnames(g.matrix) <- A
-    rownames(g.matrix) <- 1:num.stages
-    for (si in num.stages:min.stages){
+    rownames(g.matrix) <- 1:max.stages
+    for (si in max.stages:min.stages){
       f.prob <- f(s = si, t = length(A))
     }
     g.prob <- g(s = 1, t = 1 )
@@ -203,7 +203,7 @@ Mstep <- function(A, initialization, MarkovModel, F.matrix, G.matrix){
   for (t in length(A):2){ 
     if (t==2){ 
       s <- 1 
-      s.prim <- 1:num.stages
+      s.prim <- 1:max.stages
       mass.prob <- list()
       for (ci in 1:num.classes){
         pp <- MarkovModel[[ci]][[1]][paste0(A[t-1],s),A[t]]*MarkovModel[[ci]][[2]][paste0(A[t],s), s.prim]
@@ -219,8 +219,8 @@ Mstep <- function(A, initialization, MarkovModel, F.matrix, G.matrix){
       
      
     } else if (t==length(A)){
-      s <- min.stages:num.stages
-      s.prim <- min.stages:num.stages
+      s <- min.stages:max.stages
+      s.prim <- min.stages:max.stages
       mass.prob <- list()
       theta_c.a <- c(rep(0,num.classes))
       ci<-1
@@ -236,7 +236,7 @@ Mstep <- function(A, initialization, MarkovModel, F.matrix, G.matrix){
         mass.prob[[ci]] <- mass.prob[[ci]]*theta_c.a[ci]
         mass.prob[[ci]][is.na(mass.prob[[ci]])] <-  0 
         new.theta_c[ci] <<- new.theta_c[ci] + theta_c.a[ci] 
-        if (min.stages == num.stages) {
+        if (min.stages == max.stages) {
           new.MarkovModel[[ci]][[1]][paste0(A[t-1],s), A[t]] <<- new.MarkovModel[[ci]][[1]][paste0(A[t-1],s), A[t]] + mass.prob[[ci]]
           new.MarkovModel[[ci]][[2]][paste0(A[t],s), s.prim] <<- new.MarkovModel[[ci]][[2]][paste0(A[t],s), s.prim] + mass.prob[[ci]]
         } else {
@@ -248,9 +248,9 @@ Mstep <- function(A, initialization, MarkovModel, F.matrix, G.matrix){
       
     } else {
       if(A[t]=="END"){
-        s.prim <- min.stages:num.stages
+        s.prim <- min.stages:max.stages
       } else {
-        s.prim <- 1:num.stages
+        s.prim <- 1:max.stages
       }
       mass.prob <- list()
       for (ci in 1:num.classes){
