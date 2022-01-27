@@ -25,7 +25,7 @@ We use synthetic datasets generated with the proposed model, which can be find i
 
 ## Evaluation
 
-We display in this reposity the evaluation perfomed with synthetic data on the paper to demonstrate that we are able to recover the generative model. Evaluation folder includes more details of the dataset generation, commands to execute the method, and results. 
+We display in this reposity the evaluation perfomed with synthetic data on the paper to demonstrate that we are able to recover the generative model. Evaluation folder includes more details of the dataset generation, commands to execute the method, and results. (\mainEvaluation.R)
 
 
 
