@@ -1,6 +1,6 @@
 require(ggplot2)
 require(MCMCpack)
-source("github/Evaluation/evaluation_functions.R")
+source("Evaluation/evaluation_functions.R")
 
 #### PARAMETERS ####
 N <- c(300, 400, 500, 600, 700, 800, 900, 1000, 2000, 3000)
@@ -24,11 +24,8 @@ data <- data.frame('Seed'= 0,
 
 for (seed in seeds){
   n<- N[1]
-  data.directory <- paste0("HIPATIA/Model 3 dynamic programming synthetic data/results/",n,"_",num.classes,
-                           "classes_",max.stages,"stages_",min.stages,"minstages_",seed)   # Import the original model
-  
-  #data.directory <- paste0("data/",n,"_",num.classes,
-  #                         "classes_",max.stages,"stages_",min.stages,"minstages_",seed)   # Import the original model
+
+  data.directory <- paste0("data/",n,"_",num.classes,"classes_",max.stages,"stages_",min.stages,"minstages_",seed)   # Import the original model
   
   # Original model:
   original_MarkovModel <- lapply(1:num.classes, function(ci){file1 <- paste0(data.directory,"/real_class",ci,"_MarkovModel1.csv"); file2 <- paste0(data.directory,"/real_class",ci,"_MarkovModel2.csv") 
@@ -45,26 +42,28 @@ for (seed in seeds){
   
 
   for (n in N){
-    data.directory <- paste0("HIPATIA/Model 3 dynamic programming synthetic data/results/",n,"_",num.classes,
-                             "classes_",max.stages,"stages_",min.stages,"minstages_",seed)   # Import the original model
-    # data.directory <- paste0("data/",n,"_",num.classes,
-    #                           "classes_",max.stages,"stages_",min.stages,"minstages_",seed) 
+    data.directory <- paste0("data/",n,"_",num.classes,"classes_",max.stages,"stages_",min.stages,"minstages_",seed) 
 
     train <- read.csv(paste0(data.directory,"/data.csv")) # train data
     
     # Learned model:
-    learned_MarkovModel <- lapply(1:num.classes, function(ci){file1 <- paste0(data.directory,"/class",ci,"_MarkovModel1.csv"); file2 <- paste0(data.directory,"/class",ci,"_MarkovModel2.csv") 
-    MM <- list(as.data.frame(read.csv(file1, header = T, sep = "," )), as.data.frame(read.csv(file2, header = T, sep = "," ) ));
-    colnames(MM[[2]]) <- 1:max.stages;
-    MM} )
+    learned_MarkovModel <- lapply(1:num.classes, function(ci) {file1 <- paste0(data.directory,"/class",ci,"_MarkovModel1.csv"); 
+                                                              file2 <- paste0(data.directory,"/class",ci,"_MarkovModel2.csv");
+                                                              MM <- list(as.data.frame(read.csv(file1, header = T, sep = "," )), 
+                                                                         as.data.frame(read.csv(file2, header = T, sep = "," ) ));
+                                                               colnames(MM[[2]]) <- 1:max.stages;
+                                                               MM })
     learned_initialization <- lapply(1:num.classes, function(ci){ file <- paste0(data.directory,"/class",ci,"_initialization.csv");
-    as.data.frame(read.csv(file, header = T, sep = ","))})
+                                                                 as.data.frame(read.csv(file, header = T, sep = ","))})
     learned_theta.c <- t(read.csv(paste0(data.directory,"/probability_classes.csv"), header = T, sep = "," ))
     
     
-    ll_train_train <- ll_a(train, num.classes, max.stages, learned_theta.c, learned_MarkovModel, learned_initialization, min.stages) # train dataset on the learned model
-    ll_real_train <- ll_a(train, num.classes, max.stages, original_theta.c, original_MarkovModel, original_initialization, min.stages) # train dataset on the original model
-    ll_train_test <- ll_a(test, num.classes, max.stages, learned_theta.c, learned_MarkovModel, learned_initialization, min.stages) # test dataset on the learned model
+    ll_train_train <- ll_a(train, num.classes, max.stages, learned_theta.c, 
+                           learned_MarkovModel, learned_initialization, min.stages) # train dataset on the learned model
+    ll_real_train <- ll_a(train, num.classes, max.stages, original_theta.c, 
+                          original_MarkovModel, original_initialization, min.stages) # train dataset on the original model
+    ll_train_test <- ll_a(test, num.classes, max.stages, learned_theta.c, 
+                          learned_MarkovModel, learned_initialization, min.stages) # test dataset on the learned model
     
     
     data_n <- data.frame('Seed'=seed,
@@ -109,14 +108,21 @@ data1$Value[(nrow(data.mean)+1): (2*nrow(data.mean))] <- data.mean$ll_train_test
 data1$Value[(2*nrow(data.mean)+1): (3*nrow(data.mean))] <- data.mean$ll_real_train
 data1$Value[(3*nrow(data.mean)+1): (4*nrow(data.mean))] <- data.mean$ll_real_test
 
-
+# Plot
 data1$int <- paste(data1$Data, data1$Model, sep=".")
 (plot <-ggplot(data1, aes(x=Number.Sec, y=Value, colour = int, linetype=int, shape = int, size = int)) + theme_bw()+
     geom_line(lwd=0.7) + geom_point()+
-    scale_shape_manual(name = "", values = c(16,16,17,17), labels =c("Generalization (generative model)","Generalization (learned model)","Fitting (generative model)","Fitting (learned model)") )+
-    scale_linetype_manual(name="",values= c( 'dotted','solid','dotted','solid'), labels =c("Generalization (generative model)","Generalization (learned model)","Fitting (generative model)","Fitting (learned model)"))+
-    scale_colour_manual(name="", values = c("dodgerblue3", 'dodgerblue3',"darkorange3", "darkorange3"), labels =c("Generalization (generative model)","Generalization (learned model)","Fitting (generative model)","Fitting (learned model)"))+
-    scale_size_manual(name = "",values = c(2.1, 2.1, 2.3, 2.3),  labels =c("Generalization (generative model)","Generalization (learned model)","Fitting (generative model)","Fitting (learned model)") ) + 
+    scale_shape_manual(name = "", values = c(16,16,17,17), labels =c("Generalization (generative model)","Generalization (learned model)",
+                                                                     "Fitting (generative model)","Fitting (learned model)") )+
+    scale_linetype_manual(name="",values= c( 'dotted','solid','dotted','solid'), labels =c("Generalization (generative model)",
+                                                                                           "Generalization (learned model)","Fitting (generative model)",
+                                                                                           "Fitting (learned model)"))+
+    scale_colour_manual(name="", values = c("dodgerblue3", 'dodgerblue3',"darkorange3", "darkorange3"), labels =c("Generalization (generative model)",
+                                                                                                                  "Generalization (learned model)",
+                                                                                                                  "Fitting (generative model)",
+                                                                                                                  "Fitting (learned model)"))+
+    scale_size_manual(name = "",values = c(2.1, 2.1, 2.3, 2.3),  labels =c("Generalization (generative model)","Generalization (learned model)",
+                                                                           "Fitting (generative model)","Fitting (learned model)") ) + 
     ylab("Average log likelihood") + xlab("Number of sequences")  +
     theme(legend.box.background = element_rect(size=0.5), legend.title = element_blank(), legend.margin =margin(2,2,2,2), 
           legend.position = c(0.75, 0.2))+
