@@ -78,8 +78,8 @@ EM <- function( maxIter=1000,likelihoodEps = 1e-3, saveResults = TRUE){
 
 
 f <- function(s,t){
-  # f function (dynamic programming) calculates the probability of all the possible sequences of pairs action-stage that
-  # arrive at time t with the stage s assigned
+  # f function (dynamic programming) calculates the probability of all the possible configuration of stages for a 
+  # sequence of actions that arrive at time t to the stage s 
   if (f.matrix[s,t]!=-1){
     return(f.matrix[s,t])
     
@@ -107,8 +107,8 @@ f <- function(s,t){
 
 
 g <- function(s,t){
-  # g function (dynamic programming) calculates the probability of all the possible sequences of pairs action-stage that
-  # departs from time t with the assigned stage s
+  # g function (dynamic programming)  calculates the probability of all the possible configuration of stages for a 
+  # sequence of actions that depart from the stages s in time t
   if (g.matrix[s,t]!=-1  ){
     return(g.matrix[s,t])
     
