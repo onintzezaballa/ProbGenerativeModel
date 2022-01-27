@@ -8,12 +8,6 @@ source("GenerativeModel/smoothing.R")
 source("GenerativeModel/EMalgorithm.R")
 source("GenerativeModel/Loglikelihood.R")
 
-source("github/GenerativeModel/generateModel.R")
-source("github/GenerativeModel/initialization.R")
-source("github/GenerativeModel/smoothing.R")
-source("github/GenerativeModel/EMalgorithm.R")
-source("github/GenerativeModel/Loglikelihood.R")
-
 # Parameters of the probabilistic generative model:
 actions <- c( "A", "B", "C", "D", "E") # possible actions in a sequence
 n <- 100 # number of sequences to be sampled  
