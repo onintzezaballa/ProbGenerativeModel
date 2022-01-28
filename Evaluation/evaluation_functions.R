@@ -1,4 +1,4 @@
-ll_a <- function(df, num.classes, max.stages, theta_c, MarkovModel, initialization, min.stages){
+likelihood.a <- function(df, num.classes, max.stages, theta_c, MarkovModel, initialization, min.stages){
   # This function calculates the likelihood, marginalizing by stage and class
   df <- apply(df, 2, function(A) {substr(A, 1, nchar(A)-1)})
   df <- df[,-c(ncol(df))]
