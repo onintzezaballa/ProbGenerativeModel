@@ -1,8 +1,8 @@
-# A Probabilistic Generative Model for Learning the Progression Patterns of Treatments
+# Learning the Progression Patterns of Treatments using a Probabilistic Generative Model
 
 [![License-MIT](https://img.shields.io/badge/License-MIT-red)](/LICENSE) [![Made-with-R](https://img.shields.io/badge/Made%20with-R-blue)](/GenerativeModel) [![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)](#contact)
  
-This repository contains the code developed for the paper "A Probabilistic Generative Model for Learning the Progression Patterns of Treatments". The proposed generative model discovers patterns of progression in sequences of medical actions of variable length. In particular, the model considers that a sequence of actions has an associated hierarchical structure of latent variables that both classifies the sequences based on their evolution over time, and segments the sequences in different progression stages. An Expectation-Maximization algorithm is used to recover the original model underlying the data.
+This repository contains the code developed for the paper "Learning the Progression Patterns of Treatments using a Probabilistic Generative Model". This paper presents a probabilistic generative model of treatments that are described in terms of sequences of medical activities of variable length. The main objective is to identify distinct subtypes of treatments for a given disease, and discovering their development and progression. To this end, the model considers that a sequence of actions has an associated hierarchical structure of latent variables that both classifies the sequences based on their evolution over time, and segments the sequences into different progression stages. The learning procedure of the model is performed with the Expectation-Maximization algorithm that considers the exponential number of configurations of the latent variables and is efficiently solved with a method based on dynamic programming. The evaluation of the model is twofold: first, we use synthetic data to demonstrate that the learning procedure allows the generative model underlying the data to be recovered; we further assess the potential of our model to provide treatment classification and staging information in real-world data.
 
 It is a free R code that is under [MIT License](/LICENSE).
 
@@ -21,12 +21,12 @@ It is a free R code that is under [MIT License](/LICENSE).
 
 ## Data
 
-We use synthetic datasets generated with the proposed model, which some of them can be find in the [data](/data) folder.
+We use synthetic datasets generated with the proposed model, which some of them can be found in the [data](/data) folder.
 
 
 ## Evaluation
 
-We display in this reposity an evaluation of the model to demonstrate that we are able to recover the original generative model, similar to the paper. [Evaluation](/Evaluation) folder includes more details of the dataset generation, commands to execute the method, and results. 
+We display in this reposity an evaluation of the model to demonstrate that we are able to recover the original generative model, similar to the one performed on the paper. [Evaluation](/Evaluation) folder includes more details of the dataset generation, commands to execute the method, and results. 
 
 
 
