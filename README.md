@@ -15,8 +15,8 @@ It is a free R code that is under [MIT License](/LICENSE).
 * `initialization.R` initializes the parameters of the model
 * `EMalgorithm.R` efficiently performs the Expectation-Maximization algorithm, where the parameters are updated in each iteration with a dynamic programming based method.
 * `smoothing.R` contains functions to carry out the smoothing and normalization of the parameters of a model.
-* `Loglikelihod.R` computes the log-likelihood of a model
-* `MSE.R` computes the Mean Squared Error of a trained model by comparing with the original model which the sequence were sampled from.
+* `Loglikelihood.R` computes the log-likelihood of a model
+* `MSE.R` computes the Mean Squared Error of a trained model by comparing with the original model which the sequences were sampled from.
 
 
 ## Data
