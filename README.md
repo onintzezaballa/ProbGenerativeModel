@@ -19,11 +19,6 @@ It is a free R code that is under [MIT License](/LICENSE).
 * `MSE.R` computes the Mean Squared Error of a trained model by comparing with the original model which the sequences were sampled from.
 
 
-## Data
-
-We use synthetic datasets generated with the proposed model, which some of them can be found in the [data](/data) folder.
-
-
 ## Evaluation
 
 We display in this reposity an evaluation of the model to demonstrate that we are able to recover the original generative model, similar to the one performed on the paper. [Evaluation](/Evaluation) folder includes more details of the dataset generation, commands to execute the method, and results. 
